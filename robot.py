@@ -10,7 +10,7 @@ from drivetrain.drivetrainControl import DrivetrainControl
 from humanInterface.driverInterface import DriverInterface
 
 # from humanInterface.ledControl import LEDControl
-
+from Subsystems import chlimechite
 
 # from subsystems.presets import Presets
 from utils.crashLogger import CrashLogger
@@ -34,16 +34,12 @@ class MyRobot(wpilib.TimedRobot):
         self.enableLiveWindowInTest(True)
 
         #########################################################
-
+        self.lime = chlimechite.LimeLight()
+        self.lime.setPriority(7)
         self.timer = wpilib.Timer()
-
-        remoteRIODebugSupport()
-
-        self.crashLogger = CrashLogger()
 
         # We do our own logging, we don't need additional logging in the background.
         # Both of these will increase CPU load by a lot, and we never use their output.
-        wpilib.LiveWindow.disableAllTelemetry()
 
         self.webserver = Webserver()
 
@@ -57,9 +53,6 @@ class MyRobot(wpilib.TimedRobot):
         self.stick2 = wpilib.XboxController(1)
 
         self.autoSequencer = AutoSequencer()
-
-        self.rioMonitor = RIOMonitor()
-        self.pwrMon = PowerMonitor()
 
         self.autoHasRun = False
 
@@ -124,6 +117,7 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopPeriodic(self):
         # LIMELIGHT ALIGN (Left Side Values: TX: 27.58 TY: 5.74) (Right Side Values: TX: -10.6 TY: 8.37)
+        print(self.lime.values())
         self.driveTrain.setManualCmd(self.dInt.getCmd())
 
         if self.stick.getRawButton(7):
@@ -148,21 +142,5 @@ class MyRobot(wpilib.TimedRobot):
         # this will create a confusing exception here because we can reach self.rioMonitor.stopThreads()
         # when self.rioMonitor does not exist.
         # To prevent the exception and confusion, we only call self.rioMonitor.stopThreads() when exists.
-        rioMonitorExists = getattr(self, "rioMonitor", None)
-        if rioMonitorExists is not None:
-            self.rioMonitor.stopThreads()
-
         destroyAllSingletonInstances()
         super().endCompetition()
-
-
-def remoteRIODebugSupport():
-    if __debug__ and "run" in sys.argv:
-        print("Starting Remote Debug Support....")
-        try:
-            import debugpy  # pylint: disable=import-outside-toplevel
-        except ModuleNotFoundError:
-            pass
-        else:
-            debugpy.listen(("0.0.0.0", 5678))
-            debugpy.wait_for_client()
