@@ -1,3 +1,4 @@
+from wpimath.controller import PIDController
 from wpimath.kinematics import ChassisSpeeds
 from wpimath.geometry import Pose2d, Rotation2d
 from drivetrain.poseEstimation.drivetrainPoseEstimator import DrivetrainPoseEstimator
@@ -14,6 +15,7 @@ from drivetrain.drivetrainPhysical import (
 from drivetrain.drivetrainCommand import DrivetrainCommand
 from drivetrain.controlStrategies.autoDrive import AutoDrive
 from drivetrain.controlStrategies.trajectory import Trajectory
+from Subsystems.chlimechite import LimeLight
 from utils.singleton import Singleton
 from utils.allianceTransformUtils import onRed
 from utils.constants import (
@@ -92,6 +94,7 @@ class DrivetrainControl(metaclass=Singleton):
         self.gains = SwerveModuleGainSet()
 
         self.poseEst = DrivetrainPoseEstimator(self.getModulePositions())
+        self.limelight = LimeLight()
 
         self._updateAllCals()
 
@@ -107,6 +110,7 @@ class DrivetrainControl(metaclass=Singleton):
         """
         Main periodic update, should be called every 20ms
         """
+
         curEstPose = self.poseEst.getCurEstPose()
 
         # Iterate through all strategies for controlling the drivetrain to
@@ -183,6 +187,10 @@ class DrivetrainControl(metaclass=Singleton):
     def getCurEstPose(self) -> Pose2d:
         # Return the current best-guess at our pose on the field.
         return self.poseEst.getCurEstPose()
+
+    def followLimelight(self):
+        """The goal for this is for it to be a button press that will trigger it to set all poses to line the limelight up properly"""
+        pass
 
 
 def _discretizeChSpd(chSpd):

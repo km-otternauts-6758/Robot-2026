@@ -2,11 +2,15 @@ import sys
 import wpilib
 from wpimath.geometry import Pose2d, Rotation2d
 from wpimath.controller import PIDController
+from rev import SparkMax
+from phoenix6 import controls, configs, hardware, signals
+
 
 from AutoSequencerV2.autoSequencer import AutoSequencer
 from drivetrain.controlStrategies.autoDrive import AutoDrive
 from drivetrain.controlStrategies.trajectory import Trajectory
 from drivetrain.drivetrainControl import DrivetrainControl
+from drivetrain.drivetrainCommand import DrivetrainCommand
 from humanInterface.driverInterface import DriverInterface
 
 # from humanInterface.ledControl import LEDControl
@@ -34,9 +38,13 @@ class MyRobot(wpilib.TimedRobot):
         self.enableLiveWindowInTest(True)
 
         #########################################################
+        self.kraken = hardware.TalonFX(13)
         self.lime = chlimechite.LimeLight()
-        self.lime.setPriority(7)
+        # self.lime.setPriority(7)
         self.timer = wpilib.Timer()
+        self.shooter = SparkMax(15, SparkMax.MotorType.kBrushless)
+        self.encoder = self.shooter.getEncoder()
+        self.intake = SparkMax(14, SparkMax.MotorType.kBrushless)
 
         # We do our own logging, we don't need additional logging in the background.
         # Both of these will increase CPU load by a lot, and we never use their output.
@@ -55,6 +63,12 @@ class MyRobot(wpilib.TimedRobot):
         self.autoSequencer = AutoSequencer()
 
         self.autoHasRun = False
+
+        # test PID Shizz
+        self.drivePid = PIDController(2.5, 0, 0.02, 0.01)
+        self.drivePidX = PIDController(0.04, 0, 0.004, 0.01)
+        self.drivePidY = PIDController(0.08, 0, 0.008, 0.01)
+        # If this is in the final code, "remove" Scott's right to code (kill him)
 
     def robotPeriodic(self):
         pass
@@ -117,8 +131,24 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopPeriodic(self):
         # LIMELIGHT ALIGN (Left Side Values: TX: 27.58 TY: 5.74) (Right Side Values: TX: -10.6 TY: 8.37)
-        print(self.lime.values())
+        print(self.lime.ty())
         self.driveTrain.setManualCmd(self.dInt.getCmd())
+        if self.stick.getRawAxis(3):
+            print(self.encoder.getVelocity())
+            self.shooter.set(-0.65)
+        else:
+            self.shooter.set(0)
+            print("no")
+
+        if self.stick.getRawButton(2):
+            self.kraken.set(1)
+        elif self.stick.getRawButton(3):
+            self.kraken.set(-1)
+        else:
+            self.kraken.set(0)
+
+        if self.stick.getRawButton(1):
+            self.intake.set(0.25)
 
         if self.stick.getRawButton(7):
             self.driveTrain.resetGyro()
