@@ -6,7 +6,6 @@ from wpimath.kinematics import SwerveDrive4Kinematics
 from utils.units import lbsToKg
 from utils.units import deg2Rad
 from utils.units import in2m
-from utils.robotIdentification import RobotIdentification, RobotTypes
 
 """
 Defines the physical dimensions and characteristics of the drivetrain

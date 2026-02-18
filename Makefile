@@ -20,7 +20,7 @@ delete:
 	py -m robotpy undeploy
 
 commit:
-	git commit -asm "Final Touches"
+	git commit -asm "Started On Pose Estimation For limelight"
 	
 push:
 	git push origin main

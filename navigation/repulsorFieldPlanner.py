@@ -4,7 +4,7 @@ from wpimath.geometry import Pose2d, Translation2d, Rotation2d
 
 from utils.mapLookup2d import MapLookup2D
 from utils.mathUtils import limit
-from utils.signalLogging import addLog
+
 from collections import deque
 
 from drivetrain.drivetrainCommand import DrivetrainCommand

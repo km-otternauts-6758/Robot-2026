@@ -11,7 +11,6 @@ from rev import (
     SparkClosedLoopController,
 )
 from wpilib import TimedRobot
-from utils.signalLogging import addLog
 from utils.units import rev2Rad, rad2Rev, radPerSec2RPM, RPM2RadPerSec
 from utils.faults import Fault
 import time
@@ -76,12 +75,6 @@ class WrapperedSparkMax:
 
         self.disconFault.set(not self.configSuccess)
 
-        addLog(self.name + "_outputCurrent", self.ctrl.getOutputCurrent, "A")
-        addLog(self.name + "_desVolt", lambda: self.desVolt, "V")
-        addLog(self.name + "_desPos", lambda: self.desPos, "rad")
-        addLog(self.name + "_desVel", lambda: self.desVel, "RPM")
-        addLog(self.name + "_actPos", lambda: self.actPos, "rad")
-        addLog(self.name + "_actVel", lambda: self.actVel, "RPM")
 
     def setInverted(self, isInverted):
         if self.configSuccess:

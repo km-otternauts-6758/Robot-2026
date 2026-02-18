@@ -13,7 +13,7 @@ from drivetrain.drivetrainPhysical import (
 )
 from drivetrain.poseEstimation.drivetrainPoseTelemetry import DrivetrainPoseTelemetry
 from utils.faults import Fault
-from utils.signalLogging import addLog
+
 
 # from wrappers.wrapperedPoseEstPhotonCamera import WrapperedPoseEstPhotonCamera
 from wpimath.kinematics import SwerveModulePosition, SwerveModuleState
@@ -70,8 +70,6 @@ class DrivetrainPoseEstimator:
         self._lastModulePositions = initialModulePositions
 
         # Logging and Telemetry
-        addLog("PE Vision Targets Seen", lambda: self._camTargetsVisible, "bool")
-        addLog("PE Gyro Angle", lambda: (self._curRawGyroAngle.degrees()), "deg")
         self._telemetry = DrivetrainPoseTelemetry()
 
         # Simulation Only - maintain a rough estimate of pose from velocities

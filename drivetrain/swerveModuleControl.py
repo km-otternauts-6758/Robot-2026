@@ -14,8 +14,7 @@ from drivetrain.swerveModuleGainSet import SwerveModuleGainSet
 # from wrappers.wrapperedKraken import WrapperedKraken
 from wrappers.wrapperedSparkMax import WrapperedSparkMax
 from wrappers.wrapperedSRXMagEncoder import WrapperedSRXMagEncoder
-from dashboardWidgets.swerveState import getAzmthDesTopicName, getAzmthActTopicName
-from dashboardWidgets.swerveState import getSpeedDesTopicName, getSpeedActTopicName
+from dashboardWidgets.swerveState import getAzmthActTopicName
 from utils.signalLogging import addLog
 from drivetrain.drivetrainPhysical import dtMotorRotToLinear
 from drivetrain.drivetrainPhysical import dtLinearToMotorRot
@@ -96,24 +95,9 @@ class SwerveModuleControl:
         self._prevMotorDesSpeed = 0
 
         addLog(
-            getAzmthDesTopicName(moduleName),
-            lambda: (self.optimizedDesiredState.angle.degrees()),
-            "deg",
-        )
-        addLog(
             getAzmthActTopicName(moduleName),
             lambda: (self.actualState.angle.degrees()),
             "deg",
-        )
-        addLog(
-            getSpeedDesTopicName(moduleName),
-            lambda: (self.optimizedDesiredState.speed / MAX_FWD_REV_SPEED_MPS),
-            "frac",
-        )
-        addLog(
-            getSpeedActTopicName(moduleName),
-            lambda: ((self.actualState.speed) / MAX_FWD_REV_SPEED_MPS),
-            "frac",
         )
 
         # Simulation Support Only

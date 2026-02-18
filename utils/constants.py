@@ -70,3 +70,9 @@ DT_FR_AZMTH_ENC_PORT = 3
 # Unused = 7
 FIX_ME_LED_PIN = 8
 HEARTBEAT_LED_PIN = 9
+
+
+
+
+
+kRPM = 0

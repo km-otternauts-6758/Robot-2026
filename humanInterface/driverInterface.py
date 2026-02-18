@@ -8,7 +8,7 @@ from drivetrain.drivetrainPhysical import (
 )
 from utils.allianceTransformUtils import onRed
 from utils.faults import Fault
-from utils.signalLogging import addLog
+
 from wpimath import applyDeadband
 from wpimath.filter import SlewRateLimiter
 from wpilib import XboxController
@@ -119,6 +119,13 @@ class DriverInterface:
         retval.velY = self.velYCmd
         retval.velT = self.velTCmd
         return retval
+    
+    # def getLimeCMD(self) -> DrivetrainCommand:
+    #     retval = DrivetrainCommand()
+    #     retval.velX = self.velXCmd
+    #     retval.velY = self.velYCmd
+    #     retval.velT = self.velTCmd
+    #     return retval
 
     def getAutoDrive(self) -> bool:
         return self.autoDrive

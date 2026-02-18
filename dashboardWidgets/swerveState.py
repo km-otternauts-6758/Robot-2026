@@ -3,20 +3,10 @@ from utils.signalLogging import sigNameToNT4TopicName
 
 
 # Utility signal name calculation functions
-def getAzmthDesTopicName(modName):
-    return f"DtModule_{modName}_azmthDes"
 
 
 def getAzmthActTopicName(modName):
     return f"DtModule_{modName}_azmthAct"
-
-
-def getSpeedDesTopicName(modName):
-    return f"DtModule_{modName}_speedDes"
-
-
-def getSpeedActTopicName(modName):
-    return f"DtModule_{modName}_speedAct"
 
 
 # Private helper class: Describes a set of topics associated with one module
@@ -26,33 +16,18 @@ class _ModuleTopicSet:
     # pylint: disable=line-too-long
 
     def __init__(self, modName, modIdx):
-        self.azmthDesTopic = sigNameToNT4TopicName(getAzmthDesTopicName(modName))
         self.azmthActTopic = sigNameToNT4TopicName(getAzmthActTopicName(modName))
-        self.speedDesTopic = sigNameToNT4TopicName(getSpeedDesTopicName(modName))
-        self.speedActTopic = sigNameToNT4TopicName(getSpeedActTopicName(modName))
         self.modIdx = modIdx
 
     def getSubscriptionStrings(self):
         retStr = ""
-        retStr += f'"{self.azmthDesTopic}",'
         retStr += f'"{self.azmthActTopic}",'
-        retStr += f'"{self.speedDesTopic}",'
-        retStr += f'"{self.speedActTopic}",'
         return retStr
 
     def getJSSetData(self, widgetIdx):
         retStr = ""
-        retStr += f'if(name == "{self.azmthDesTopic}") {{\n'
-        retStr += f"    widget{widgetIdx}.setVal({self.modIdx}, 0, value)\n"
-        retStr += f"}}\n"
         retStr += f'if(name == "{self.azmthActTopic}") {{\n'
         retStr += f"    widget{widgetIdx}.setVal({self.modIdx}, 1, value)\n"
-        retStr += f"}}\n"
-        retStr += f'if(name == "{self.speedDesTopic}") {{\n'
-        retStr += f"    widget{widgetIdx}.setVal({self.modIdx}, 2, value)\n"
-        retStr += f"}}\n"
-        retStr += f'if(name == "{self.speedActTopic}") {{\n'
-        retStr += f"    widget{widgetIdx}.setVal({self.modIdx}, 3, value)\n"
         retStr += f"}}\n"
         return retStr
 

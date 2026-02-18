@@ -1,5 +1,5 @@
 from wpimath.controller import PIDController
-from wpimath.kinematics import ChassisSpeeds
+from wpimath.kinematics import ChassisSpeeds, SwerveDrive4Odometry
 from wpimath.geometry import Pose2d, Rotation2d
 from drivetrain.poseEstimation.drivetrainPoseEstimator import DrivetrainPoseEstimator
 from drivetrain.swerveModuleControl import SwerveModuleControl
@@ -12,9 +12,11 @@ from drivetrain.drivetrainPhysical import (
     BR_ENCODER_MOUNT_OFFSET_RAD,
     kinematics,
 )
+from humanInterface.driverInterface import DriverInterface
 from drivetrain.drivetrainCommand import DrivetrainCommand
 from drivetrain.controlStrategies.autoDrive import AutoDrive
 from drivetrain.controlStrategies.trajectory import Trajectory
+
 from Subsystems.chlimechite import LimeLight
 from utils.singleton import Singleton
 from utils.allianceTransformUtils import onRed
@@ -32,6 +34,13 @@ from utils.constants import (
     DT_BL_AZMTH_ENC_PORT,
     DT_BR_AZMTH_ENC_PORT,
 )
+
+
+
+LimeLightP = 0.05
+LimeLightI = 0
+LimeLightD = 0
+
 
 
 class DrivetrainControl(metaclass=Singleton):
@@ -94,9 +103,19 @@ class DrivetrainControl(metaclass=Singleton):
         self.gains = SwerveModuleGainSet()
 
         self.poseEst = DrivetrainPoseEstimator(self.getModulePositions())
+        self.dInt = DriverInterface()
+
+        self.stick = self.dInt.ctrl
+
         self.limelight = LimeLight()
+        self.pid = PIDController(LimeLightP, LimeLightI, LimeLightD)
+        self.pid.setTolerance(1.0)
 
         self._updateAllCals()
+        # self.odometry = SwerveDrive4Odometry(kinematics, self.poseEst._getGyroAngle(), self.getModulePositions())
+        
+        # self.odometryPose = Pose2d()
+        
 
     def setManualCmd(self, cmd: DrivetrainCommand):
         """Send commands to the robot for motion relative to the field
@@ -106,7 +125,7 @@ class DrivetrainControl(metaclass=Singleton):
         """
         self.curManCmd = cmd
 
-    def update(self):
+    def update(self, button: bool):
         """
         Main periodic update, should be called every 20ms
         """
@@ -121,10 +140,18 @@ class DrivetrainControl(metaclass=Singleton):
         self.curCmd = AutoDrive().update(self.curCmd, curEstPose)
 
         # Transform the current command to be robot relative
-        tmp = ChassisSpeeds.fromFieldRelativeSpeeds(
-            self.curCmd.velX, self.curCmd.velY, self.curCmd.velT, curEstPose.rotation()
-        )
-        self.desChSpd = _discretizeChSpd(tmp)
+
+        if button == False:
+            tmp = ChassisSpeeds.fromFieldRelativeSpeeds(
+                self.curCmd.velX, self.curCmd.velY, self.curCmd.velT, curEstPose.rotation()
+            )
+            self.desChSpd = _discretizeChSpd(tmp)
+        elif button == True:
+            rotation = Rotation2d(self.pid.calculate(self.limelight.ty(), 0))
+            tmp = ChassisSpeeds.fromFieldRelativeSpeeds(
+                self.curCmd.velX, self.curCmd.velY, self.curCmd.velT, rotation
+            )
+            self.desChSpd = _discretizeChSpd(tmp)
 
         # Set the desired pose for telemetry purposes
         self.poseEst._telemetry.setDesiredPose(self.curCmd.desPose)
@@ -143,6 +170,8 @@ class DrivetrainControl(metaclass=Singleton):
 
         # Update the estimate of our pose
         self.poseEst.update(self.getModulePositions(), self.getModuleStates())
+        # self.odometry.update(self.poseEst._getGyroAngle(), self.getModulePositions())
+        
 
         # Update calibration values if they've changed
         if self.gains.hasChanged():
@@ -188,9 +217,23 @@ class DrivetrainControl(metaclass=Singleton):
         # Return the current best-guess at our pose on the field.
         return self.poseEst.getCurEstPose()
 
-    def followLimelight(self):
-        """The goal for this is for it to be a button press that will trigger it to set all poses to line the limelight up properly"""
-        pass
+    # def followLimelight(self):
+    #     """The goal for this is for it to be a button press that will trigger it to set all poses to line the limelight up properly"""
+    #     rotation = Rotation2d(self.pid.calculate(self.limelight.ty(), 0))
+    #     tmp = ChassisSpeeds.fromFieldRelativeSpeeds(
+    #         self.curCmd.velX, self.curCmd.velY, self.curCmd.velT, rotation
+    #     )
+    #     self.desChSpd = _discretizeChSpd(tmp)
+    #     desModStates = kinematics.toSwerveModuleStates(self.desChSpd)
+
+    #     # Scale back commands if one corner of the robot is going too fast
+    #     kinematics.desaturateWheelSpeeds(desModStates, MAX_FWD_REV_SPEED_MPS)
+
+    #     # Send commands to modules and update
+    #     for idx, module in enumerate(self.modules):
+    #         module.setDesiredState(desModStates[idx])
+    #         module.update()
+        
 
 
 def _discretizeChSpd(chSpd):

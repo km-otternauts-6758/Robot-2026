@@ -10,7 +10,6 @@ from drivetrain.drivetrainPhysical import (
 # from drivetrain.controlStrategies.autoDrive import AutoDrive
 from choreo.trajectory import SwerveSample
 from utils.calibration import Calibration
-from utils.signalLogging import addLog
 from utils.mathUtils import limit
 
 
@@ -44,13 +43,6 @@ class HolonomicDriveController:
         self.xFB = 0.0
         self.yFB = 0.0
         self.tFB = 0.0
-
-        addLog(f"{name} HDC xFF", lambda: self.xFF, "mps")
-        addLog(f"{name} HDC yFF", lambda: self.yFF, "mps")
-        addLog(f"{name} HDC tFF", lambda: self.tFF, "radpersec")
-        addLog(f"{name} HDC xFB", lambda: self.xFB, "mps")
-        addLog(f"{name} HDC yFB", lambda: self.yFB, "mps")
-        addLog(f"{name} HDC tFB", lambda: self.tFB, "radpersec")
 
         # Closed-loop control for the X position
         self.xCtrl = PIDController(

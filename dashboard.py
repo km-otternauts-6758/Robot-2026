@@ -2,7 +2,6 @@ import wpilib
 from AutoSequencerV2.autoSequencer import AutoSequencer
 from dashboardWidgets.autoChooser import AutoChooser
 from dashboardWidgets.swerveState import SwerveState
-from dashboardWidgets.reefIndicator import ReefIndicator
 from dashboardWidgets.icon import Icon
 from dashboardWidgets.text import Text
 from utils.faults import FaultWrangler
@@ -14,9 +13,7 @@ class Dashboard:
     def __init__(self):
         webServer = Webserver()
 
-        webServer.addDashboardWidget(
-            ReefIndicator(15, 15, "/SmartDashboard/reefGoalPosIdx")
-        )
+        
 
         webServer.addDashboardWidget(
             Icon(45, 45, "/SmartDashboard/isRedIconState", "#FF0000", "allianceRed")
@@ -74,7 +71,3 @@ class Dashboard:
                 Icon.kBLINK_FAST if FaultWrangler().hasActiveFaults() else Icon.kOFF
             ),
         )
-
-        # Test Only.
-        # TODO: Real data
-        addLog("reefGoalPosIdx", lambda: 2)

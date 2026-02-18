@@ -1,6 +1,6 @@
 import wpilib
 
-from utils.signalLogging import addLog
+
 
 
 
@@ -17,9 +17,6 @@ class SegmentTimeTracker:
         self.prevLoopStartTime = self.loopStartTime
         self.curPeriod = 0
         self.curLoopExecDur = 0
-
-        addLog("LoopPeriod", lambda: (self.curPeriod * 1000.0), "ms")
-        addLog("LoopDuration", lambda: (self.curLoopExecDur * 1000.0), "ms")
 
     def start(self):
         """

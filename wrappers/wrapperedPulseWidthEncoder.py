@@ -1,7 +1,6 @@
 import math
 from wpilib import DigitalInput, DutyCycle
 from utils.faults import Fault
-from utils.signalLogging import addLog
 from utils.calibration import Calibration
 from utils.units import wrapAngleRad
 
