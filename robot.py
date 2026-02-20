@@ -211,9 +211,9 @@ class MyRobot(wpilib.TimedRobot):
             self.shoulder.set(0)
 
         if self.stick.getRawButton(1):
-            self.intake.set(0.5)
+            self.intake.set(0.75)
         elif self.stick.getRawButton(4):
-            self.intake.set(-0.5)
+            self.intake.set(-0.75)
         else:
             self.intake.set(0)
 
@@ -258,6 +258,7 @@ class MyRobot(wpilib.TimedRobot):
     def disabledPeriodic(self):
         self.autoSequencer.updateMode()
         Trajectory().trajHDC.updateCals()
+
 
     def disabledInit(self):
         self.autoSequencer.updateMode(True)

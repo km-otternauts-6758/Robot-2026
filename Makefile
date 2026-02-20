@@ -20,7 +20,7 @@ delete:
 	py -m robotpy undeploy
 
 commit:
-	git commit -asm "Started On Pose Estimation For limelight"
+	git commit -asm "Dawg ts robot ain't gonna work no longer"
 	
 push:
 	git push origin main
