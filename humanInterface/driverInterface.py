@@ -11,7 +11,7 @@ from utils.faults import Fault
 
 from wpimath import applyDeadband
 from wpimath.filter import SlewRateLimiter
-from wpilib import XboxController
+from wpilib import XboxController, Joystick
 import enum
 
 kElevatorButton = 0
@@ -32,6 +32,7 @@ class DriverInterface:
         # controller
         ctrlIdx = 0
         self.ctrl = XboxController(ctrlIdx)
+        self.stick = Joystick(1)
         self.connectedFault = Fault(f"Driver XBox controller ({ctrlIdx}) unplugged")
 
         # Drivetrain motion commands
@@ -102,6 +103,38 @@ class DriverInterface:
             self.createDebugObstacle = self.ctrl.getYButtonPressed()
 
             self.connectedFault.setNoFault()
+
+        elif self.stick.isConnected():
+            # Convert from  joystic sign/axis conventions to robot velocity conventions
+            vXJoyRaw = self.stick.getY()
+            vYJoyRaw = self.stick.getX()
+            vRotJoyRaw = -self.stick.getTwist()
+
+            # Correct for alliance
+            if onRed():
+                vXJoyRaw *= -1.0
+                vYJoyRaw *= -1.0
+
+            # deadband
+            vXJoyWithDeadband = applyDeadband(vXJoyRaw, 0.2)
+            vYJoyWithDeadband = applyDeadband(vYJoyRaw, 0.2)
+            vRotJoyWithDeadband = applyDeadband(vRotJoyRaw, 0.2)
+
+            # TODO - if the driver wants a slow or sprint button, add it here.
+            slowMult = 1.0 if (self.ctrl.getRightBumper()) else 0.7
+            # slowMult = 1.0
+
+            # Shape velocity command
+            velCmdXRaw = vXJoyWithDeadband * MAX_STRAFE_SPEED_MPS * slowMult
+            velCmdYRaw = vYJoyWithDeadband * MAX_FWD_REV_SPEED_MPS * slowMult
+            velCmdRotRaw = vRotJoyWithDeadband * MAX_ROTATE_SPEED_RAD_PER_SEC * 0.8
+
+            # Slew rate limiter
+            self.velXCmd = self.velXSlewRateLimiter.calculate(velCmdXRaw)
+            self.velYCmd = self.velYSlewRateLimiter.calculate(velCmdYRaw)
+            self.velTCmd = self.velTSlewRateLimiter.calculate(velCmdRotRaw)
+
+            # self.gyroResetCmd = self.ctrl.getAButton()
 
         else:
             # If the joystick is unplugged, pick safe-state commands and raise a fault

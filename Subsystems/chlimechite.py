@@ -11,13 +11,15 @@ z1 = inchesToMeters(6.5)
 class LimeLight:
     def __init__(self):
         NetworkTables.initialize(server="10.67.58.2")
-        self.limelight = NetworkTables.getDefault().getTable("limelight-kmrobob")
+        self.limelight = NetworkTables.getDefault().getTable("limelight-kmrobot")
         self.apriltags = AprilTagFieldLayout.loadField(AprilTagField.k2026RebuiltWelded)
         
 
     def visible(self) -> float:
         return (self.limelight.getEntry("tv").getDouble(0))
 
+    def priorities(self):
+        self.limelight.getEntry("tid").getDouble(0)
     # def setPriority(self, id: float):
     #     self.limelight.getEntry("priorityid").setDefaultNumber(id)
 

@@ -125,7 +125,7 @@ class DrivetrainControl(metaclass=Singleton):
         """
         self.curManCmd = cmd
 
-    def update(self, button: bool):
+    def update(self):
         """
         Main periodic update, should be called every 20ms
         """
@@ -141,17 +141,16 @@ class DrivetrainControl(metaclass=Singleton):
 
         # Transform the current command to be robot relative
 
-        if button == False:
-            tmp = ChassisSpeeds.fromFieldRelativeSpeeds(
-                self.curCmd.velX, self.curCmd.velY, self.curCmd.velT, curEstPose.rotation()
-            )
-            self.desChSpd = _discretizeChSpd(tmp)
-        elif button == True:
-            rotation = Rotation2d(self.pid.calculate(self.limelight.ty(), 0))
-            tmp = ChassisSpeeds.fromFieldRelativeSpeeds(
-                self.curCmd.velX, self.curCmd.velY, self.curCmd.velT, rotation
-            )
-            self.desChSpd = _discretizeChSpd(tmp)
+        tmp = ChassisSpeeds.fromFieldRelativeSpeeds(
+            self.curCmd.velX, self.curCmd.velY, self.curCmd.velT, curEstPose.rotation()
+        )
+        self.desChSpd = _discretizeChSpd(tmp)
+        # elif button == True:
+        #     rotation = Rotation2d(self.pid.calculate(self.limelight.ty(), 0))
+        #     tmp = ChassisSpeeds.fromFieldRelativeSpeeds(
+        #         self.curCmd.velX, self.curCmd.velY, self.curCmd.velT, rotation
+        #     )
+        #     self.desChSpd = _discretizeChSpd(tmp)
 
         # Set the desired pose for telemetry purposes
         self.poseEst._telemetry.setDesiredPose(self.curCmd.desPose)
@@ -217,22 +216,22 @@ class DrivetrainControl(metaclass=Singleton):
         # Return the current best-guess at our pose on the field.
         return self.poseEst.getCurEstPose()
 
-    # def followLimelight(self):
-    #     """The goal for this is for it to be a button press that will trigger it to set all poses to line the limelight up properly"""
-    #     rotation = Rotation2d(self.pid.calculate(self.limelight.ty(), 0))
-    #     tmp = ChassisSpeeds.fromFieldRelativeSpeeds(
-    #         self.curCmd.velX, self.curCmd.velY, self.curCmd.velT, rotation
-    #     )
-    #     self.desChSpd = _discretizeChSpd(tmp)
-    #     desModStates = kinematics.toSwerveModuleStates(self.desChSpd)
+    def followLimelight(self):
+        """The goal for this is for it to be a button press that will trigger it to set all poses to line the limelight up properly"""
+        rotation = Rotation2d(self.pid.calculate(self.limelight.ty(), 0))
+        tmp = ChassisSpeeds.fromFieldRelativeSpeeds(
+            self.stick.getRawAxis(0), self.stick.getRawAxis(0), self.stick.getRawAxis(0), rotation
+        )
+        self.desChSpd = _discretizeChSpd(tmp)
+        desModStates = kinematics.toSwerveModuleStates(self.desChSpd)
 
-    #     # Scale back commands if one corner of the robot is going too fast
-    #     kinematics.desaturateWheelSpeeds(desModStates, MAX_FWD_REV_SPEED_MPS)
+        # Scale back commands if one corner of the robot is going too fast
+        kinematics.desaturateWheelSpeeds(desModStates, MAX_FWD_REV_SPEED_MPS)
 
-    #     # Send commands to modules and update
-    #     for idx, module in enumerate(self.modules):
-    #         module.setDesiredState(desModStates[idx])
-    #         module.update()
+        # Send commands to modules and update
+        for idx, module in enumerate(self.modules):
+            module.setDesiredState(desModStates[idx])
+            module.update()
         
 
 

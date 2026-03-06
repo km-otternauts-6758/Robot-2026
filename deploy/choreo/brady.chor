@@ -9,18 +9,18 @@
  "config":{
   "frontLeft":{
    "x":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"-11 in",
+    "val":-0.2794
    },
    "y":{
-    "exp":"11 in",
-    "val":0.2794
+    "exp":"-11 in",
+    "val":-0.2794
    }
   },
   "backLeft":{
    "x":{
-    "exp":"-11 in",
-    "val":-0.2794
+    "exp":"11 in",
+    "val":0.2794
    },
    "y":{
     "exp":"11 in",
@@ -28,8 +28,8 @@
    }
   },
   "mass":{
-   "exp":"105 lbs",
-   "val":47.62719885
+   "exp":"95 lbs",
+   "val":43.09127515
   },
   "inertia":{
    "exp":"6 kg m ^ 2",
